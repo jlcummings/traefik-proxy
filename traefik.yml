@@ -7,8 +7,6 @@ certificatesResolvers:
   letsencrypt:
     acme:
       storage: /etc/acme/acme.json
-      httpChallenge:
-        entryPoint: web
 
 entryPoints:
   web:

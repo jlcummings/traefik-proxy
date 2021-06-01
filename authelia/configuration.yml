@@ -2,6 +2,8 @@
 host: 0.0.0.0
 port: 9091
 log_level: debug
+# tls_key: /config/ssl/_wildcard.docker.localhost-key.pem
+# tls_cert: /config/ssl/_wildcard.docker.localhost.pem
 
 totp:
   issuer: auth.docker.localhost # CHANGEME: Set as AUTHELIA_HOST

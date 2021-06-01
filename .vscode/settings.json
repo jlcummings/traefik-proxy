@@ -1,0 +1,26 @@
+{
+    "cSpell.words": [
+        "BYOCK",
+        "CASERVER",
+        "CERTIFICATESRESOLVERS",
+        "DNSCHALLENGE",
+        "ENTRYPOINT",
+        "ENTRYPOINTS",
+        "HTTPCHALLENGE",
+        "LDAP",
+        "LETSENCRYPT",
+        "POSTGRES",
+        "Quickstart",
+        "TLSCHALLENGE",
+        "WEBSECURE",
+        "authelia",
+        "changeme",
+        "digitalocean",
+        "hostnames",
+        "hostregexp",
+        "ldif",
+        "middlewares",
+        "mkcert",
+        "traefik"
+    ]
+}

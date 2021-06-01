@@ -39,7 +39,7 @@ customization is necessary are marked with `CHANGEME` comments.
 The command will also create the external docker network `traefik`. Other docker
 services that you plan to expose via Traefik should be added to this network.
 
-## Creating a LDAP user
+### Creating a LDAP user
 
 The following will create a default user named `changeme` with the password `insecure`:
 
@@ -47,7 +47,11 @@ The following will create a default user named `changeme` with the password `ins
 $ bin/add_user authelia/example.ldif
 ```
 
-**Note**: When run locally (_e.g._ on `localhost`), Traefik uses a self-signed SSL certificate. Therefore, web-browser security warnings are expected and can be safely bypassed.
+### Notes 
+
+* When run locally (_e.g._ on `localhost`), Traefik uses a self-signed SSL certificate. Therefore, web-browser security warnings are expected and can be safely bypassed.
+
+* Alternatively, the base configuration is set to use `localhost` (or rather `docker.localhost`) as the domain. To easily configure a wildcard localhost certificate-key pair for development purposes look at [`mkcert`](https://github.com/FiloSottile/mkcert) as a mostly painless method for the `docker.localhost` domain. For an introduction to the purpose and how to get started, see a [practical guide to getting started with `mkcert`](https://blog.filippo.io/mkcert-valid-https-certificates-for-localhost/).  In test-driving or deployment, you can simply use the `.env` file and choose by configuration one of the various LetsEncrypt challenge methods (http, tls, or dns) or bring your own certificate-key (BYOCK) pair.  All installation specific data can be kept out of the various tracked/versioned configuration files and limited to the `.env` file by either commenting or uncommenting and configuring the appropriate parts of the `.env` file.
 
 To explore, navigate to:
 

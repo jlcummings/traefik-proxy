@@ -29,6 +29,7 @@ services:
     restart: always
     volumes:
       - ./authelia:/config
+      - ${HOST_CERT_PATH}:/config/ssl:ro
 
   docker-socket-proxy:
     environment:
@@ -53,6 +54,11 @@ services:
     environment:
       LDAP_ADMIN_PASSWORD_FILE: /run/secrets/ldap-admin
       LDAP_CONFIG_PASSWORD_FILE: /run/secrets/ldap-config
+      # LDAP_TLS: "true"
+      # LDAP_SEED_INTERNAL_LDAP_TLS_CRT_FILENAME: /custom_certs/${DEFAULT_PUBLIC_CERT}
+      # LDAP_SEED_INTERNAL_LDAP_TLS_KEY_FILENAME: /custom_certs/${DEFAULT_PRIVATE_KEY}
+      # LDAP_SEED_INTERNAL_LDAP_TLS_CA_CRT_FILENAME: /custom_certs/rootCA.pem
+      # LDAP_SEED_INTERNAL_LDAP_TLS_DH_PARAM_FILE: /custom_certs/dhparams.pem
     secrets:
       - ldap-admin
       - ldap-config
@@ -62,6 +68,7 @@ services:
     volumes:
       - ldap_db:/var/lib/ldap
       - ldap_config:/etc/ldap/slapd.d
+      # - ${HOST_CERT_PATH}:/custom_certs:ro
 
   postgres:
     container_name: authelia-postgres
@@ -104,6 +111,8 @@ services:
       - ./acme:/etc/acme
       - ./dynamic-conf:/etc/traefik/dynamic-conf:ro
       - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ${HOST_CERT_PATH}:/certs
+      - ${CUSTOM_HOST_SECRET_STORE}:/run/custom_secret_store:ro
 
   whoami:
     container_name: simple-service

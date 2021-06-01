@@ -6,30 +6,34 @@ services:
       - traefik.enable=true
       - traefik.http.routers.authelia.entrypoints=websecure
       - traefik.http.routers.authelia.rule=Host(`${AUTHELIA_HOST}`)
-      - traefik.http.routers.authelia.tls.certresolver=letsencrypt
+      - traefik.http.routers.authelia.priority=80
+      - traefik.http.routers.authelia.middlewares=secured2@file
+      # - traefik.http.routers.authelia.tls.certresolver=letsencrypt
       - traefik.http.routers.authelia.tls=true
   handle-errors:
     labels:
       - traefik.enable=true
       - traefik.http.routers.handle-errors.entrypoints=websecure
-      - traefik.http.routers.handle-errors.rule=Host(`${HANDLE_ERRORS_HOST}`)
-      - traefik.http.routers.handle-errors.tls.certresolver=letsencrypt
+      - traefik.http.routers.handle-errors.rule=HostRegexp(`{host:.+}`)
+      - traefik.http.routers.handle-errors.priority=10
+      # - traefik.http.routers.handle-errors.tls.certresolver=letsencrypt
       - traefik.http.routers.handle-errors.tls=true
   traefik:
     labels:
       - traefik.enable=true
-      - traefik.http.middlewares.auth.forwardauth.address=${AUTHELIA_REDIRECT}
       - traefik.http.routers.traefik.entrypoints=websecure
-      - traefik.http.routers.traefik.middlewares=secured@file
+      - traefik.http.routers.traefik.middlewares=secured2@file
       - traefik.http.routers.traefik.rule=Host(`${TRAEFIK_DASHBOARD_HOST}`)
       - traefik.http.routers.traefik.service=api@internal
-      - traefik.http.routers.traefik.tls.certresolver=letsencrypt
+      - traefik.http.routers.traefik.priority=80
+      # - traefik.http.routers.traefik.tls.certresolver=letsencrypt
       - traefik.http.routers.traefik.tls=true
   whoami:
     labels:
       - traefik.enable=true
       - traefik.http.routers.whoami.entrypoints=websecure
-      - traefik.http.routers.whoami.middlewares=secured@file
+      - traefik.http.routers.whoami.middlewares=secured2@file
       - traefik.http.routers.whoami.rule=Host(`${WHOAMI_HOST}`)
-      - traefik.http.routers.whoami.tls.certresolver=letsencrypt
+      - traefik.http.routers.whoami.priority=80
+      # - traefik.http.routers.whoami.tls.certresolver=letsencrypt
       - traefik.http.routers.whoami.tls=true

@@ -1,11 +1,18 @@
 http:
   middlewares:
-    secured:
+    # secured:
+    #   chain:
+    #     middlewares:
+    #       - auth@docker
+    #       - redirect-to-https
+
+    secured2:
       chain:
         middlewares:
-          - auth@docker
           - redirect-to-https
-          - error-pages
+          - rate-limit
+          - secure-headers
+          - authenticate-authelia
 
     redirect-to-https:
       redirectScheme:
@@ -16,8 +23,52 @@ http:
         status:
           - 400-499
           - 500-599
-        service: handle-errors-traefik-proxy@docker
+        service: handle-errors@docker
         query: /{status}
+
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+
+    secure-headers:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - PUT
+        accessControlMaxAge: 100
+        hostsProxyHeaders:
+          - X-Forwarded-Host
+        sslRedirect: true
+        stsSeconds: 0
+        stsIncludeSubdomains: false
+        stsPreload: false
+        forceSTSHeader: false
+        # frameDeny: true #overwritten by customFrameOptionsValue
+        #customFrameOptionsValue: SAMEORIGIN
+        customFrameOptionsValue: allow-from https://{{env "DOMAIN"}} 
+        contentTypeNosniff: true
+        browserXssFilter: true
+        # sslForceHost: true # add sslHost to all of the services
+        sslHost: {{env "DOMAIN"}}
+        referrerPolicy: same-origin
+        # Setting contentSecurityPolicy is more secure but it can break things. Proper auth will reduce the risk.
+        # the below line also breaks some apps due to 'none' - sonarr, radarr, etc.
+        # contentSecurityPolicy: "frame-ancestors '*.example.com:*';object-src 'none';script-src 'none';"
+        featurePolicy: camera 'none'; geolocation 'none'; microphone 'none'; payment 'none'; usb 'none'; vr 'none';
+        customResponseHeaders:
+          X-Robots-Tag: none,noarchive,nosnippet,notranslate,noimageindex,
+          Cache-Control: no-store
+          Pragma: no-cache
+
+    authenticate-authelia:
+      forwardAuth:
+        address: {{env "AUTHELIA_REDIRECT"}}
+        trustForwardHeader: true
+        authResponseHeaders:
+          - Remote-User
+          - Remote-Groups
 
   routers:
     http-catchall:
@@ -25,7 +76,7 @@ http:
         - web
       middlewares:
         - redirect-to-https
-        - error-pages
+        #- error-pages
       rule: hostregexp(`{host:.+}`)
       service: noop
 
@@ -34,3 +85,29 @@ http:
       loadBalancer:
         servers:
           - url: http://192.168.0.1
+
+tls:
+  options:
+    tls-opts:
+      minVersion: VersionTLS12
+      cipherSuites:
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+        - TLS_AES_128_GCM_SHA256
+        - TLS_AES_256_GCM_SHA384
+        - TLS_CHACHA20_POLY1305_SHA256
+        - TLS_FALLBACK_SCSV # Client is doing version fallback. See RFC 7507
+      curvePreferences:
+        - CurveP521
+        - CurveP384
+      sniStrict: false
+  stores:
+    default:
+      defaultCertificate:
+        # https://doc.traefik.io/traefik/providers/file/#go-templating
+        certFile: /certs/{{env "DEFAULT_PUBLIC_CERT"}}
+        keyFile: /certs/{{env "DEFAULT_PRIVATE_KEY"}}
